@@ -20,7 +20,7 @@ The site is not affiliated with Primavera Sound.
 | `/en/` | English. |
 | `/ja/` | Japanese. Artist prose is machine-translated and still awaiting review. |
 
-The root `/` redirects in the browser: `ja` to `/ja/`, `en` to `/en/`, otherwise `/zh-hant/`.
+The root `/` redirects from the browser `Accept-Language` header: `ja` to `/ja/`, `en` to `/en/`, `zh` to `/zh-hant/`. Anything else goes to `/zh-hant/`. A short page remains for browsers without that header.
 
 Interface copy lives in `src/i18n/ui.ts`. Artist prose lives on each record as `bio`, `sound`, `listen`, and `note`, with `_zh`, `_en`, and `_ja` suffixes. Japanese falls back to English when a field is empty.
 
@@ -55,7 +55,10 @@ npm run dev      # http://localhost:4321
 npm run build    # static output in dist/
 npm run preview
 npm run check-ja # confirm Japanese fields and that source links survived
+npm run share-assets # rebuild public/og.jpg and the favicons (needs network once)
 ```
+
+`public/og.jpg` is the 1200×630 share card (Open Graph and Twitter Card). It uses a Don Caballero photo from Primavera Sound media, credited on the image, so it is not covered by the MIT license either. Favicons are a black dot.
 
 ## Deploy
 
@@ -77,4 +80,4 @@ A push to `main` deploys. Pull requests get preview URLs once the Git connection
 - Do not present a family as mutually exclusive musicology.
 - Keep markdown links `[label](url)` intact when translating.
 - Do not imply affiliation with the festival.
-- Match existing behaviour before restyling: search, family filters, atmospheric toggle, sort, treemap, routes, profile, session list, text export.
+- Match existing behaviour before restyling: search, family filters, atmospheric toggle, sort, treemap, routes, profile, saved list stored in the `psa-list` cookie, print-to-PDF export.

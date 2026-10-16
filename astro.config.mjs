@@ -7,6 +7,7 @@ export default defineConfig({
     locales: ['zh-hant', 'en', 'ja'],
     routing: {
       prefixDefaultLocale: true,
+      redirectToDefaultLocale: false,
     },
   },
 });

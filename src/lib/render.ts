@@ -1,3 +1,4 @@
+import { billOf } from '../data/billing';
 import { FAMILIES, FAMILY_ORDER, type FamilyId } from '../data/families';
 import type { Artist } from '../data/types';
 import { LESSONS, ROUTES, familyName, field, genreLabel, t, type Lang } from '../i18n/ui';
@@ -6,8 +7,11 @@ import { canonical, esc, markdown, textOnly } from './text';
 
 const imageUrl = (artist: Artist) => artist.localImage || artist.image;
 
-const photo = (artist: Artist, attrs = '') =>
-  `<img src="${esc(imageUrl(artist))}" alt="${esc(artist.name)}" loading="lazy" decoding="async" width="600" height="460" ${attrs} onerror="this.onerror=null;this.src='${esc(artist.image)}'">`;
+const photo = (artist: Artist, attrs = '') => {
+  const src = imageUrl(artist);
+  const fallback = artist.image && artist.image !== src ? ` data-fallback="${esc(artist.image)}"` : '';
+  return `<img src="${esc(src)}" alt="${esc(artist.name)}" loading="lazy" decoding="async" width="600" height="460" ${attrs}${fallback}>`;
+};
 
 export function coverageText(artists: Artist[], lang: Lang) {
   const strong = artists.filter((artist) => artist.confidence === 'strong').length;
@@ -39,9 +43,11 @@ export function renderFilters(artists: Artist[], state: AtlasState) {
 export function renderDots(artists: Artist[], state: AtlasState) {
   return orderedForDots(artists)
     .map((artist) => {
+      const bill = billOf(artist.id);
       const dim = state.family !== 'all' && artist.family !== state.family ? ' dim' : '';
-      const label = `${artist.name} · ${genreLabel(state.lang, artist.main)}`;
-      return `<button class="dot${dim}" data-open="${esc(artist.id)}" style="--dot:${familyOf(artist.family).color}" aria-label="${esc(label)}"></button>`;
+      const place = bill === 'rest' ? '' : ` · ${t(state.lang, bill === 'lead' ? 'billLead' : 'billMid')}`;
+      const label = `${artist.name} · ${genreLabel(state.lang, artist.main)}${place}`;
+      return `<button class="dot bill-${bill}${dim}" data-open="${esc(artist.id)}" style="--dot:${familyOf(artist.family).color}" aria-label="${esc(label)}"></button>`;
     })
     .join('');
 }
@@ -136,6 +142,30 @@ export function renderRoutes(artists: Artist[], lang: Lang) {
   }).join('');
 }
 
+const listenIcon = {
+  spotify:
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 1.8a10.2 10.2 0 1 0 0 20.4 10.2 10.2 0 0 0 0-20.4zm4.67 14.72a.63.63 0 0 1-.87.21c-2.38-1.45-5.38-1.78-8.91-.98a.63.63 0 1 1-.28-1.23c3.86-.88 7.17-.5 9.85 1.13.3.18.4.58.21.87zm1.16-2.59a.79.79 0 0 1-1.08.26c-2.73-1.68-6.89-2.16-10.12-1.18a.79.79 0 0 1-.46-1.52c3.7-1.12 8.3-.58 11.4 1.36.37.23.48.72.26 1.08zm.1-2.7C14.86 9.4 9.55 9.2 6.72 10.06a.94.94 0 1 1-.55-1.8c3.24-.98 9.16-.79 12.78 1.42a.94.94 0 1 1-.96 1.62z"/></svg>',
+  apple:
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M16.4 12.7c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.2-2.8.8-3.5.8s-1.8-.8-3-.8c-1.5 0-3 .9-3.8 2.3-1.6 2.8-.4 7 1.2 9.3.8 1.1 1.7 2.3 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7 2-.1 2.9-2.2c.7-1 1.2-2.1 1.6-3.2-4.2-1.6-3.9-6.1-3.9-6.2zM14.7 6.4c.6-.8 1.1-1.9.9-3-.9 0-2 .6-2.6 1.4-.6.7-1.1 1.8-.9 2.9 1 .1 2-.5 2.6-1.3z"/></svg>',
+  youtube:
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M23 12.2s0-3.2-.4-4.6c-.2-.9-.9-1.6-1.8-1.8C19.2 5.4 12 5.4 12 5.4s-7.2 0-8.8.4c-.9.2-1.6.9-1.8 1.8C1 9 1 12.2 1 12.2s0 3.2.4 4.6c.2.9.9 1.6 1.8 1.8 1.6.4 8.8.4 8.8.4s7.2 0 8.8-.4c.9-.2 1.6-.9 1.8-1.8.4-1.4.4-4.6.4-4.6zM9.8 15.6V8.8l6.2 3.4-6.2 3.4z"/></svg>',
+};
+
+function listenLinks(name: string, release: string, lang: Lang) {
+  const query = encodeURIComponent(`${name} ${release}`);
+  const links = [
+    [`https://open.spotify.com/search/${query}`, listenIcon.spotify, t(lang, 'listenSpotify')],
+    [`https://music.apple.com/search?term=${query}`, listenIcon.apple, t(lang, 'listenApple')],
+    [`https://www.youtube.com/results?search_query=${query}`, listenIcon.youtube, t(lang, 'listenYouTube')],
+  ];
+  return `<span class="listen-links">${links
+    .map(
+      ([href, icon, label]) =>
+        `<a href="${href}" target="_blank" rel="noopener noreferrer" aria-label="${esc(label)}: ${esc(release)}">${icon}</a>`,
+    )
+    .join('')}</span>`;
+}
+
 export function renderProfile(artists: Artist[], artist: Artist, state: AtlasState) {
   const lang = state.lang;
   const related = relatedArtists(artists, artist);
@@ -145,10 +175,7 @@ export function renderProfile(artists: Artist[], artist: Artist, state: AtlasSta
     items.map((item) => `<button class="tag tag-button" data-search="${esc(item)}">${esc(labelled ? genreLabel(lang, item) : item)}</button>`).join('') || '<span>n.a.</span>';
   const releases = artist.releases.length
     ? `<ol class="release-list">${artist.releases
-        .map(
-          (release, index) =>
-            `<li><span>${String(index + 1).padStart(2, '0')} / ${esc(release)}</span><a href="https://open.spotify.com/search/${encodeURIComponent(artist.name + ' ' + release)}" target="_blank" rel="noopener noreferrer">${t(lang, 'listenSearch')} ↗</a></li>`,
-        )
+        .map((release, index) => `<li><span>${String(index + 1).padStart(2, '0')} / ${esc(release)}</span>${listenLinks(artist.name, release, lang)}</li>`)
         .join('')}</ol>`
     : `<p>${t(lang, 'noneReleases')}</p>`;
   const sources = artist.sources

@@ -1,7 +1,8 @@
 import artistsJson from '../data/artists.json';
 import type { Artist } from '../data/types';
-import { t, type Lang } from '../i18n/ui';
-import type { AtlasState } from '../lib/model';
+import { familyName, genreLabel, t, type Lang } from '../i18n/ui';
+import { familyOf, type AtlasState } from '../lib/model';
+import { esc } from '../lib/text';
 import {
   renderArtists,
   renderBranches,
@@ -17,6 +18,22 @@ const artists = artistsJson as Artist[];
 const lang = (document.documentElement.dataset.lang || 'zh') as Lang;
 
 const $ = (selector: string) => document.querySelector(selector);
+const SAVED_COOKIE = 'psa-list';
+
+function readSaved() {
+  const row = document.cookie.split('; ').find((item) => item.startsWith(`${SAVED_COOKIE}=`));
+  if (!row) return new Set<string>();
+  const ids = decodeURIComponent(row.slice(SAVED_COOKIE.length + 1))
+    .split(',')
+    .filter((id) => artists.some((artist) => artist.id === id));
+  return new Set(ids);
+}
+
+function writeSaved(saved: Set<string>) {
+  const value = encodeURIComponent([...saved].join(','));
+  document.cookie = `${SAVED_COOKIE}=${value}; Max-Age=31536000; Path=/; SameSite=Lax`;
+}
+
 const state: AtlasState = {
   lang,
   family: 'all',
@@ -26,7 +43,7 @@ const state: AtlasState = {
   view: 'grid',
   sort: 'az',
   limit: 24,
-  saved: new Set(),
+  saved: readSaved(),
   selected: null,
 };
 
@@ -101,13 +118,11 @@ function openProfile(id: string) {
   content.innerHTML = renderProfile(artists, artist, state);
   if (!dialog.open) dialog.showModal();
   dialog.scrollTop = 0;
-  document.body.style.overflow = 'hidden';
 }
 
 function closeDialog(id: string) {
   const dialog = document.getElementById(id) as HTMLDialogElement | null;
   dialog?.close();
-  document.body.style.overflow = '';
   if (id === 'profile') state.selected = null;
 }
 
@@ -119,15 +134,19 @@ function toggleSave(id: string) {
     state.saved.add(id);
     notify(t(state.lang, 'added'));
   }
+  writeSaved(state.saved);
   updateSaved();
-  const profile = $('#profile') as HTMLDialogElement | null;
-  if (profile?.open && state.selected) {
-    const artist = artists.find((item) => item.id === state.selected);
-    const content = $('#profile-content');
-    if (artist && content) content.innerHTML = renderProfile(artists, artist, state);
-  }
   const saved = $('#saved-dialog') as HTMLDialogElement | null;
-  if (saved?.open) renderSavedDialog();
+  if (saved?.open) {
+    const buttons = [...document.querySelectorAll<HTMLElement>('#saved-content [data-save]')];
+    const position = buttons.findIndex((button) => button === document.activeElement);
+    renderSavedDialog();
+    if (position >= 0) {
+      const next = [...document.querySelectorAll<HTMLElement>('#saved-content [data-save]')];
+      const close = document.querySelector<HTMLElement>('#saved-content [data-close]');
+      (next[Math.min(position, next.length - 1)] ?? close)?.focus();
+    }
+  }
 }
 
 function renderSavedDialog() {
@@ -135,30 +154,35 @@ function renderSavedDialog() {
   if (content) content.innerHTML = renderSaved(artists, state);
 }
 
-function exportSaved() {
+function fillPrintSheet() {
+  const sheet = $('#print-list');
+  if (!sheet) return;
   const items = artists.filter((artist) => state.saved.has(artist.id));
-  const lines = [
-    'PRIMAVERA SOUND ATLAS / 2027',
-    t(state.lang, 'myList'),
-    '16 OCT 2026',
-    '',
-    ...items.flatMap((artist) => [
-      artist.name,
-      `${artist.main} · ${artist.sub.join(' · ')}`,
-      ...artist.releases.map((release) => `  ${release}`),
-      artist.official,
-      ...artist.sources.map((source) => source.url),
-      '',
-    ]),
-    'Independent listening guide. Not affiliated with Primavera Sound.',
-  ];
-  const url = URL.createObjectURL(new Blob([lines.join('\n')], { type: 'text/plain;charset=utf-8' }));
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = 'Primavera-2027-Listening-List.txt';
-  link.click();
-  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  const locale = state.lang === 'zh' ? 'zh-Hant' : state.lang === 'ja' ? 'ja' : 'en-GB';
+  const date = new Date().toLocaleDateString(locale, { year: 'numeric', month: 'long', day: 'numeric' });
+  const rows = items
+    .map((artist) => {
+      const releases = artist.releases.length ? artist.releases.join(' · ') : '—';
+      return `<tr><td>${esc(artist.name)}</td><td><span class="print-family" style="--family:${familyOf(artist.family).color}">${esc(familyName(state.lang, artist.family))}</span></td><td>${esc(genreLabel(state.lang, artist.main))}</td><td>${esc(releases)}</td></tr>`;
+    })
+    .join('');
+  const body = items.length
+    ? `<table><thead><tr><th>${esc(t(state.lang, 'colArtist'))}</th><th>${esc(t(state.lang, 'colFamily'))}</th><th>${esc(t(state.lang, 'colGenre'))}</th><th>${esc(t(state.lang, 'colReleases'))}</th></tr></thead><tbody>${rows}</tbody></table>`
+    : `<p>${esc(t(state.lang, 'savedEmpty'))}</p>`;
+  sheet.innerHTML = `<p class="print-kicker">PRIMAVERA SOUND ATLAS · 2027</p><h1>${esc(t(state.lang, 'myList'))}</h1><p class="print-meta">${esc(date)} · ${items.length}</p>${body}`;
 }
+
+function exportSaved() {
+  const previousTitle = document.title;
+  document.title = 'Primavera-2027-Listening-List';
+  const restore = () => {
+    document.title = previousTitle;
+    window.removeEventListener('afterprint', restore);
+  };
+  window.addEventListener('afterprint', restore);
+  window.print();
+}
+window.addEventListener('beforeprint', fillPrintSheet);
 
 function resetFilters() {
   state.family = 'all';
@@ -266,7 +290,6 @@ $('#mylist')?.addEventListener('click', () => {
   renderSavedDialog();
   const dialog = $('#saved-dialog') as HTMLDialogElement | null;
   dialog?.showModal();
-  document.body.style.overflow = 'hidden';
 });
 
 ['profile', 'saved-dialog'].forEach((id) => {
@@ -279,7 +302,6 @@ $('#mylist')?.addEventListener('click', () => {
     }
   });
   dialog?.addEventListener('close', () => {
-    document.body.style.overflow = '';
     if (id === 'profile') state.selected = null;
   });
 });
@@ -300,7 +322,47 @@ $('#dots')?.addEventListener('pointerover', (event) => {
   if (!button || !tip) return;
   const artist = artists.find((item) => item.id === button.dataset.open);
   if (!artist) return;
-  tip.textContent = `${artist.name} / ${artist.main}`;
+  tip.textContent = `${artist.name} / ${genreLabel(state.lang, artist.main)}`;
   tip.classList.add('show');
 });
 $('#dots')?.addEventListener('pointerleave', () => $('#dot-tooltip')?.classList.remove('show'));
+
+function useFallback(img: HTMLImageElement) {
+  const fallback = img.dataset.fallback;
+  if (!fallback) return;
+  delete img.dataset.fallback;
+  img.src = fallback;
+}
+document.addEventListener(
+  'error',
+  (event) => {
+    if (event.target instanceof HTMLImageElement) useFallback(event.target);
+  },
+  true,
+);
+document.querySelectorAll<HTMLImageElement>('img[data-fallback]').forEach((img) => {
+  if (img.currentSrc && img.complete && img.naturalWidth === 0) useFallback(img);
+});
+
+function syncControls() {
+  const query = ($('#search') as HTMLInputElement | null)?.value || '';
+  const frequency = ($('#your-frequency') as HTMLInputElement | null)?.checked ?? false;
+  const sort = ($('#sort') as HTMLSelectElement | null)?.value === 'discovery' ? 'discovery' : 'az';
+  if (query === state.query && frequency === state.frequency && sort === state.sort) return false;
+  state.query = query;
+  state.frequency = frequency;
+  state.sort = sort;
+  state.limit = 24;
+  return true;
+}
+
+if (syncControls() || state.saved.size) {
+  paintArtists();
+  updateSaved();
+}
+window.addEventListener('pageshow', () => {
+  if (syncControls()) {
+    paintArtists();
+    updateSaved();
+  }
+});

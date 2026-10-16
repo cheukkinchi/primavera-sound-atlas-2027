@@ -1,10 +1,14 @@
 # Primavera 2027 · Sound Atlas
 
-Primavera Sound Barcelona 2027 的非官方聆聽地圖。繁體中文、English、日本語。
+An independent listening atlas for the Primavera Sound Barcelona 2027 lineup. It is a guide for finding acts you might like. It is not a ranking, not an official genre list, and not affiliated with Primavera Sound. Japanese artist profiles are machine-translated and still awaiting review.
 
-An independent listening atlas for the Primavera Sound Barcelona 2027 lineup. It is a guide for finding acts you might like. It is not a ranking, not an official genre list, and not affiliated with Primavera Sound.
 
-Japanese artist profiles are machine-translated and still awaiting review. Interface copy in Japanese was written with the site.
+
+Primavera Sound Barcelona 2027 陣容的獨立聆聽地圖，幫你找到可能會喜歡的演出。這不是排名，也不是官方曲風分類，與 Primavera Sound 沒有任何關係。日文版的藝人介紹為機器翻譯，仍待校對。
+
+
+
+Primavera Sound Barcelona 2027 のラインナップを聴いて巡るための、非公式のリスニング・アトラスです。気に入りそうなアーティストを見つけるためのガイドであり、ランキングでも公式のジャンル分類でもありません。Primavera Sound とは提携していません。アーティスト紹介文は機械翻訳で、現在レビュー待ちです。
 
 ## Develop
 
@@ -34,15 +38,19 @@ The public repository is [cheukkinchi/primavera-2027-sound-atlas](https://github
 
 Cloudflare Pages builds `main` with:
 
-| Setting | Value |
-| --- | --- |
-| Build command | `npm run build` |
-| Output directory | `dist` |
-| Node | `22` |
-| Production URL | https://primavera-2027-sound-atlas.pages.dev |
+
+| Setting          | Value                                                                                        |
+| ---------------- | -------------------------------------------------------------------------------------------- |
+| Build command    | `npm run build`                                                                              |
+| Output directory | `dist`                                                                                       |
+| Node             | `22`                                                                                         |
+| Production URL   | [https://primavera-2027-sound-atlas.pages.dev](https://primavera-2027-sound-atlas.pages.dev) |
+
 
 Connect the GitHub repo under Workers & Pages → Create → Pages → Connect to Git. After that, every push to `main` deploys, and pull requests get preview URLs.
 
 ## License
 
-Code and original writing in this repository are [MIT](LICENSE). Artist photographs remain the property of their rights holders (Primavera Sound media assets) and are excluded.
+Code and original writing in this repository are [MIT](LICENSE).
+
+Artist photographs under `public/images/` are Primavera Sound media assets. They remain the property of their rights holders and are not covered by the MIT license.

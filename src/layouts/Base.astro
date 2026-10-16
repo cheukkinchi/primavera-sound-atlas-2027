@@ -1,6 +1,6 @@
 ---
 import '../styles/global.css';
-import { HTML_LANG, localePath, t, type Locale } from '../i18n/ui';
+import { HTML_LANG, LOCALES, localePath, t, type Locale } from '../i18n/ui';
 
 interface Props {
   locale: Locale;
@@ -12,6 +12,10 @@ const { locale, title = 'Primavera 2027 · Sound Atlas', description } = Astro.p
 const htmlLang = HTML_LANG[locale];
 const site = Astro.site ?? new URL('https://primavera-2027-sound-atlas.pages.dev');
 const lang = locale === 'zh-hant' ? 'zh' : locale === 'ja' ? 'ja' : 'en';
+const OG_LOCALE: Record<Locale, string> = { 'zh-hant': 'zh_TW', en: 'en_US', ja: 'ja_JP' };
+const pageUrl = new URL(localePath(locale), site).href;
+const shareImage = new URL('/og.jpg', site).href;
+const shareAlt = t(lang, 'shareAlt');
 ---
 
 <!doctype html>
@@ -27,6 +31,28 @@ const lang = locale === 'zh-hant' ? 'zh' : locale === 'ja' ? 'ja' : 'en';
     <link rel="alternate" hreflang="en" href={new URL('/en/', site)} />
     <link rel="alternate" hreflang="ja" href={new URL('/ja/', site)} />
     <link rel="alternate" hreflang="x-default" href={new URL('/zh-hant/', site)} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Primavera 2027 · Sound Atlas" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={pageUrl} />
+    <meta property="og:locale" content={OG_LOCALE[locale]} />
+    {LOCALES.filter((other) => other !== locale).map((other) => (
+      <meta property="og:locale:alternate" content={OG_LOCALE[other]} />
+    ))}
+    <meta property="og:image" content={shareImage} />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={shareAlt} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={shareImage} />
+    <meta name="twitter:image:alt" content={shareAlt} />
     <link rel="preconnect" href="https://api.fontshare.com" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -80,5 +106,6 @@ const lang = locale === 'zh-hant' ? 'zh' : locale === 'ja' ? 'ja' : 'en';
     <dialog id="profile" aria-labelledby="profile-title"><div id="profile-content"></div></dialog>
     <dialog id="saved-dialog" aria-labelledby="saved-title"><div id="saved-content"></div></dialog>
     <div class="toast" id="toast" role="status"></div>
+    <div id="print-list"></div>
   </body>
 </html>

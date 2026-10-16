@@ -1,7 +1,7 @@
 {
   "name": "primavera-2027-sound-atlas",
   "version": "0.1.0",
-  "private": false,
+  "private": true,
   "description": "An independent listening atlas for Primavera Sound Barcelona 2027. Traditional Chinese, English, and Japanese.",
   "type": "module",
   "license": "MIT",
@@ -10,9 +10,13 @@
     "build": "astro build",
     "preview": "astro preview",
     "convert-data": "node scripts/convert-data.mjs",
-    "check-ja": "node scripts/check-ja.mjs"
+    "check-ja": "node scripts/check-ja.mjs",
+    "share-assets": "node scripts/make-share-assets.mjs"
   },
   "dependencies": {
-    "astro": "^5.14.1"
+    "astro": "^7.4.0"
+  },
+  "devDependencies": {
+    "opentype.js": "^2.0.0"
   }
 }

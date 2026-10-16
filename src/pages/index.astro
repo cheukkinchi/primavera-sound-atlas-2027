@@ -3,21 +3,30 @@ const description = 'Primavera Sound Barcelona 2027 listening atlas.';
 ---
 
 <!doctype html>
-<html lang="zh-Hant">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Primavera 2027 · Sound Atlas</title>
     <meta name="description" content={description} />
-    <link rel="canonical" href="/zh-hant/" />
-    <meta http-equiv="refresh" content="0;url=/zh-hant/" />
+    <meta name="robots" content="noindex" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
     <script is:inline>
-      const language = (navigator.language || '').toLowerCase();
-      const path = language.startsWith('ja') ? '/ja/' : language.startsWith('en') ? '/en/' : '/zh-hant/';
+      const languages = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || ''];
+      let path = '/zh-hant/';
+      for (const item of languages) {
+        const tag = String(item).toLowerCase();
+        if (tag === 'ja' || tag.startsWith('ja-')) path = '/ja/';
+        else if (tag === 'en' || tag.startsWith('en-')) path = '/en/';
+        else if (tag === 'zh' || tag.startsWith('zh-')) path = '/zh-hant/';
+        else continue;
+        break;
+      }
       location.replace(path);
     </script>
   </head>
   <body>
-    <p><a href="/zh-hant/">Primavera 2027 · Sound Atlas</a></p>
+    <p><a href="/zh-hant/">繁體中文</a> · <a href="/en/">English</a> · <a href="/ja/">日本語</a></p>
   </body>
 </html>

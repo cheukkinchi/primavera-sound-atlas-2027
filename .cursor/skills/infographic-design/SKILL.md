@@ -38,7 +38,7 @@ Archivo Black carries the display type. Satoshi carries the body, with Noto Sans
 
 ## Charts
 
-- **Dot atlas**: one equal dot per act, grouped by family order. No decorative size variation. Hover or focus names the act.
+- **Dot atlas**: one dot per act, grouped by family order. Size is how the October 2026 announcement billed the name: large leads the bill, medium is the second billing, small is everyone else. It is not a quality ranking. Hover or focus names the act.
 - **Treemap**: area stands for the count of the primary family. Direct labels (name, count, share). Selecting a tile reveals overlapping branches and states that those counts must not be added.
 - **Lessons and routes**: small multiples with a number, a title, and one sentence. Not a ranking.
 
