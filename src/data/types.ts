@@ -1,0 +1,31 @@
+export type Confidence = 'strong' | 'partial' | 'unverified';
+
+export type Artist = {
+  id: string;
+  name: string;
+  family: string;
+  main: string;
+  sub: string[];
+  parent: string;
+  descriptors: string[];
+  adjacent: string[];
+  bio_en: string;
+  bio_zh: string;
+  bio_ja?: string;
+  sound_en: string;
+  sound_zh: string;
+  sound_ja?: string;
+  listen_en: string;
+  listen_zh: string;
+  listen_ja?: string;
+  note_en: string;
+  note_zh: string;
+  note_ja?: string;
+  releases: string[];
+  confidence: Confidence;
+  sources: { title?: string; url: string }[];
+  index: number;
+  official: string;
+  image: string;
+  localImage: string;
+};

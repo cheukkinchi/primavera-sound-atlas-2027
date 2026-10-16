@@ -1,0 +1,154 @@
+---
+import Base from '../../layouts/Base.astro';
+import artists from '../../data/artists.json';
+import type { Artist } from '../../data/types';
+import { isLocale, langOf, t, type Locale } from '../../i18n/ui';
+import { coverageText, renderArtists, renderBranches, renderDots, renderFilters, renderLessons, renderRoutes, renderTreemap, resultCount } from '../../lib/render';
+import type { AtlasState } from '../../lib/model';
+
+export function getStaticPaths() {
+  return (['zh-hant', 'en', 'ja'] as Locale[]).map((lang) => ({ params: { lang } }));
+}
+
+const locale = Astro.params.lang;
+if (!isLocale(locale)) {
+  throw new Error('Unknown locale');
+}
+const lang = langOf(locale);
+const list = artists as Artist[];
+const state: AtlasState = {
+  lang,
+  family: 'all',
+  mapFamily: 'guitar',
+  query: '',
+  frequency: false,
+  view: 'grid',
+  sort: 'az',
+  limit: 24,
+  saved: new Set(),
+  selected: null,
+};
+const cards = renderArtists(list, state);
+const description = t(lang, 'heroDesc').replace(/<br>/g, ' ');
+---
+
+<Base locale={locale} description={description}>
+  <main id="top">
+    <section class="hero">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="live-dot"></span> BARCELONA · 02–06 JUN 2027</div>
+        <h1 set:html={t(lang, 'heroTitle')} />
+        <p class="hero-desc">{t(lang, 'heroDesc')}</p>
+        <a class="primary" href="#explore">{t(lang, 'heroCta')}<span aria-hidden="true">↗</span></a>
+        <div class="hero-stats">
+          <span><b class="total-count">{list.length}</b> {t(lang, 'acts')}</span>
+          <span><b>8</b> {t(lang, 'worlds')}</span>
+          <span>{t(lang, 'noBoundaries')}</span>
+        </div>
+      </div>
+      <div class="genome" aria-label="Artist dot atlas">
+        <div class="genome-top"><span>{t(lang, 'genomeTitle')}</span><span>PS / 27</span></div>
+        <div class="dots" id="dots" set:html={renderDots(list, state)} />
+        <div class="dot-tooltip" id="dot-tooltip" role="status"></div>
+        <div class="genome-bottom"><span>{t(lang, 'oneDot')}</span><span>↖</span></div>
+      </div>
+    </section>
+    <div class="ticker" aria-hidden="true">
+      <span>NOT JUST A LINEUP.</span><span>FIND YOUR FREQUENCY.</span><span>PRIMAVERA SOUND 2027</span><span>NOT JUST A LINEUP.</span>
+    </div>
+    <section class="explore section" id="explore">
+      <div class="section-heading">
+        <div><span class="kicker">01 / Artist index</span><h2>{t(lang, 'exploreTitle')}</h2></div>
+        <p>{t(lang, 'exploreDesc')}</p>
+      </div>
+      <div class="filter-toolbar">
+        <label class="search">
+          <span aria-hidden="true">⌕</span>
+          <input id="search" type="search" placeholder={t(lang, 'search')} aria-label={t(lang, 'search')} />
+          <kbd>/</kbd>
+        </label>
+        <div class="view-switch" aria-label={t(lang, 'switchView')}>
+          <button id="grid-view" type="button" aria-pressed="true">{t(lang, 'grid')}</button>
+          <button id="list-view" type="button" aria-pressed="false">{t(lang, 'list')}</button>
+        </div>
+      </div>
+      <div id="family-filters" class="family-filters" aria-label={t(lang, 'familyFilters')} set:html={renderFilters(list, state)} />
+      <div class="secondary-toolbar">
+        <label class="focus-toggle">
+          <input type="checkbox" id="your-frequency" />
+          <span class="toggle-track"></span>
+          <span>{t(lang, 'yourFrequency')}</span>
+          <span class="help-text">{t(lang, 'frequencyHint')}</span>
+        </label>
+        <label class="sort-label">
+          <span>{t(lang, 'sortLabel')}</span>
+          <select id="sort">
+            <option value="az">{t(lang, 'sortAz')}</option>
+            <option value="discovery">{t(lang, 'discovery')}</option>
+          </select>
+        </label>
+      </div>
+      <div class="results-line">
+        <span id="result-count" role="status" aria-live="polite">{resultCount(cards.shown, cards.total, lang)}</span>
+        <button id="clear-filters" type="button">{t(lang, 'clear')}</button>
+      </div>
+      <div id="artists" class="artist-grid" set:html={cards.html} />
+      <div id="empty" class="empty" hidden>
+        <h3>{t(lang, 'emptyTitle')}</h3>
+        <p>{t(lang, 'emptyDesc')}</p>
+        <button class="primary" id="empty-reset" type="button">{t(lang, 'clear')}</button>
+      </div>
+      <button class="load-more" id="load-more" type="button" hidden={cards.shown >= cards.total}>
+        <span>{t(lang, 'more')}</span><span>↓</span>
+      </button>
+    </section>
+    <section id="soundmap" class="soundmap section">
+        <div class="section-heading">
+          <div><span class="kicker">02 / Genre cartography</span><h2>{t(lang, 'mapTitle')}</h2></div>
+          <p>{t(lang, 'mapDesc')}</p>
+        </div>
+        <div class="map-layout">
+          <div class="treemap" id="treemap" set:html={renderTreemap(list, state)} />
+          <aside class="map-guide">
+            <div class="eyebrow">{t(lang, 'readMap')}</div>
+            <h3>{t(lang, 'guideTitle')}</h3>
+            <p>{t(lang, 'guideDesc')}</p>
+            <div class="family-tree" id="family-tree" set:html={renderBranches(list, state)} />
+            <p class="method-note">{t(lang, 'mapCaveat')}</p>
+          </aside>
+        </div>
+        <div class="overlap-lesson" id="overlap-lesson" set:html={renderLessons(lang)} />
+    </section>
+    <section class="routes section" id="routes">
+      <div class="section-heading">
+        <div><span class="kicker">03 / Listening routes</span><h2>{t(lang, 'routesTitle')}</h2></div>
+        <p>{t(lang, 'routesDesc')}</p>
+      </div>
+      <div id="route-cards" set:html={renderRoutes(list, lang)} />
+    </section>
+    <section class="method section" id="method">
+      <div class="method-layout">
+        <div>
+          <span class="kicker">Field notes / 16 Oct 2026</span>
+          <h2 set:html={t(lang, 'methodTitle')} />
+        </div>
+        <div>
+          <p>{t(lang, 'methodDesc')}</p>
+          <p id="coverage">{coverageText(list, lang)}</p>
+          {locale === 'ja' && <p class="machine-note">{t(lang, 'machineNote')}</p>}
+          <details>
+            <summary>{t(lang, 'verificationNote')}</summary>
+            <p>{t(lang, 'verificationBody')}</p>
+          </details>
+          <div class="method-links">
+            <a href="https://www.primaverasound.com/en/barcelona/lineup" target="_blank" rel="noopener noreferrer">{t(lang, 'officialLineup')} ↗</a>
+            <a href="https://www.stilllisteningmagazine.com/news/primavera-sound-announces-2027-line-up" target="_blank" rel="noopener noreferrer">{t(lang, 'announcement')} ↗</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</Base>
+<script>
+  import '../../scripts/atlas.ts';
+</script>

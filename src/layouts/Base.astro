@@ -1,0 +1,84 @@
+---
+import '../styles/global.css';
+import { HTML_LANG, localePath, t, type Locale } from '../i18n/ui';
+
+interface Props {
+  locale: Locale;
+  title?: string;
+  description: string;
+}
+
+const { locale, title = 'Primavera 2027 · Sound Atlas', description } = Astro.props;
+const htmlLang = HTML_LANG[locale];
+const site = Astro.site ?? new URL('https://primavera-2027-sound-atlas.pages.dev');
+const lang = locale === 'zh-hant' ? 'zh' : locale === 'ja' ? 'ja' : 'en';
+---
+
+<!doctype html>
+<html lang={htmlLang} data-lang={lang}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#ffffff" />
+    <meta name="description" content={description} />
+    <title>{title}</title>
+    <link rel="canonical" href={new URL(localePath(locale), site)} />
+    <link rel="alternate" hreflang="zh-Hant" href={new URL('/zh-hant/', site)} />
+    <link rel="alternate" hreflang="en" href={new URL('/en/', site)} />
+    <link rel="alternate" hreflang="ja" href={new URL('/ja/', site)} />
+    <link rel="alternate" hreflang="x-default" href={new URL('/zh-hant/', site)} />
+    <link rel="preconnect" href="https://api.fontshare.com" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700,900&display=swap" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Noto+Sans+TC:wght@400;500;600;700;900&display=swap"
+      rel="stylesheet"
+    />
+    {locale === 'ja' && (
+      <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&display=swap"
+        rel="stylesheet"
+      />
+    )}
+  </head>
+  <body>
+    <a class="skip" href="#explore">{t(lang, 'skip')}</a>
+    <header class="header">
+      <a class="wordmark" href={localePath(locale)} aria-label={t(lang, 'homeLabel')}>
+        PRIMAVERA<br />SOUND<span>ATLAS</span>
+      </a>
+      <nav class="nav" aria-label="Main">
+        <a href="#explore">{t(lang, 'navExplore')}</a>
+        <a href="#soundmap">{t(lang, 'navMap')}</a>
+        <a href="#routes">{t(lang, 'navRoutes')}</a>
+      </nav>
+      <div class="head-actions">
+        <nav class="language" aria-label={t(lang, 'languageLabel')}>
+          <a href="/zh-hant/" hreflang="zh-Hant" aria-current={locale === 'zh-hant' ? 'page' : undefined}>中</a>
+          <span>/</span>
+          <a href="/en/" hreflang="en" aria-current={locale === 'en' ? 'page' : undefined}>EN</a>
+          <span>/</span>
+          <a href="/ja/" hreflang="ja" aria-current={locale === 'ja' ? 'page' : undefined}>日</a>
+        </nav>
+        <button class="mylist" id="mylist" type="button">
+          <span class="label">{t(lang, 'myList')}</span>
+          <span class="saved-count">0</span>
+        </button>
+      </div>
+    </header>
+    <slot />
+    <footer>
+      <div class="footer-name">SEE YOU<br />IN THE SOUND.</div>
+      <div>
+        <p>{t(lang, 'footerNote')}</p>
+        <p>{t(lang, 'photoCredit')}</p>
+        <span>PRIMAVERA / SOUND ATLAS · 2027</span>
+      </div>
+      <a href="#top" aria-label={t(lang, 'backTop')}>↑</a>
+    </footer>
+    <dialog id="profile" aria-labelledby="profile-title"><div id="profile-content"></div></dialog>
+    <dialog id="saved-dialog" aria-labelledby="saved-title"><div id="saved-content"></div></dialog>
+    <div class="toast" id="toast" role="status"></div>
+  </body>
+</html>

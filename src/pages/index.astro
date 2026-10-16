@@ -1,0 +1,23 @@
+---
+const description = 'Primavera Sound Barcelona 2027 listening atlas.';
+---
+
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Primavera 2027 · Sound Atlas</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href="/zh-hant/" />
+    <meta http-equiv="refresh" content="0;url=/zh-hant/" />
+    <script is:inline>
+      const language = (navigator.language || '').toLowerCase();
+      const path = language.startsWith('ja') ? '/ja/' : language.startsWith('en') ? '/en/' : '/zh-hant/';
+      location.replace(path);
+    </script>
+  </head>
+  <body>
+    <p><a href="/zh-hant/">Primavera 2027 · Sound Atlas</a></p>
+  </body>
+</html>
