@@ -2,7 +2,7 @@ import type { APIRoute } from 'astro';
 import { HTML_LANG, LOCALES, localePath } from '../i18n/ui';
 
 export const GET: APIRoute = ({ site }) => {
-  const origin = site ?? new URL('https://primavera-2027-sound-atlas.pages.dev');
+  const origin = site ?? new URL('https://primavera-sound-atlas-2027.pages.dev');
   const url = (path: string) => new URL(path, origin).href;
   const alternates = [
     ...LOCALES.map((locale) => `    <xhtml:link rel="alternate" hreflang="${HTML_LANG[locale]}" href="${url(localePath(locale))}"/>`),

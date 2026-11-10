@@ -1,7 +1,7 @@
 import type { APIRoute } from 'astro';
 
 export const GET: APIRoute = ({ site }) => {
-  const origin = site ?? new URL('https://primavera-2027-sound-atlas.pages.dev');
+  const origin = site ?? new URL('https://primavera-sound-atlas-2027.pages.dev');
   const body = `User-agent: *
 Allow: /
 

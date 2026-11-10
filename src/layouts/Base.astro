@@ -10,7 +10,7 @@ interface Props {
 
 const { locale, title = 'Primavera 2027 · Sound Atlas', description } = Astro.props;
 const htmlLang = HTML_LANG[locale];
-const site = Astro.site ?? new URL('https://primavera-2027-sound-atlas.pages.dev');
+const site = Astro.site ?? new URL('https://primavera-sound-atlas-2027.pages.dev');
 const lang = locale === 'zh-hant' ? 'zh' : locale === 'ja' ? 'ja' : 'en';
 const OG_LOCALE: Record<Locale, string> = { 'zh-hant': 'zh_TW', en: 'en_US', ja: 'ja_JP' };
 const pageUrl = new URL(localePath(locale), site).href;

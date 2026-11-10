@@ -62,7 +62,7 @@ npm run share-assets # rebuild public/og.jpg and the favicons (needs network onc
 
 ## Deploy
 
-GitHub repository: `cheukkinchi/primavera-2027-sound-atlas` (public).
+GitHub repository: `cheukkinchi/primavera-sound-atlas-2027` (public).
 
 Cloudflare Pages, connected to that repo:
 
@@ -70,7 +70,7 @@ Cloudflare Pages, connected to that repo:
 - Output directory: `dist`
 - Node: `22` (see `.node-version`)
 - Production branch: `main`
-- Site: `https://primavera-2027-sound-atlas.pages.dev`
+- Site: `https://primavera-sound-atlas-2027.pages.dev`
 
 A push to `main` deploys. Pull requests get preview URLs once the Git connection exists in the Cloudflare dashboard.
 

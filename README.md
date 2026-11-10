@@ -34,7 +34,7 @@ Working rules for agents and editors: [AGENTS.md](AGENTS.md).
 
 ## Deploy
 
-The public repository is [cheukkinchi/primavera-2027-sound-atlas](https://github.com/cheukkinchi/primavera-2027-sound-atlas).
+The public repository is [cheukkinchi/primavera-sound-atlas-2027](https://github.com/cheukkinchi/primavera-sound-atlas-2027).
 
 Cloudflare Pages builds `main` with:
 
@@ -44,7 +44,7 @@ Cloudflare Pages builds `main` with:
 | Build command    | `npm run build`                                                                              |
 | Output directory | `dist`                                                                                       |
 | Node             | `22`                                                                                         |
-| Production URL   | [https://primavera-2027-sound-atlas.pages.dev](https://primavera-2027-sound-atlas.pages.dev) |
+| Production URL   | [https://primavera-sound-atlas-2027.pages.dev](https://primavera-sound-atlas-2027.pages.dev) |
 
 
 Connect the GitHub repo under Workers & Pages → Create → Pages → Connect to Git. After that, every push to `main` deploys, and pull requests get preview URLs.
